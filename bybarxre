@@ -1,0 +1,150 @@
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local screenGui = Instance.new("ScreenGui", playerGui)
+screenGui.Name = "TeleportMenu"
+
+local frame = Instance.new("Frame", screenGui)
+frame.Size = UDim2.new(0, 320, 0, 440) -- чуть шире, чтобы вместить длинную кнопку
+frame.Position = UDim2.new(0.5, -160, 0.3, -220)
+frame.BackgroundColor3 = Color3.fromRGB(255, 251, 209)
+frame.BorderColor3 = Color3.new(0, 0, 0)
+frame.Active = true
+frame.Draggable = true
+
+-- Заголовок
+
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, -60, 0, 40) -- место под кнопки
+title.Position = UDim2.new(0, 0, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Teleport Menu"
+title.Font = Enum.Font.ArialBold
+title.TextSize = 24
+title.TextColor3 = Color3.new(0, 0, 0)
+title.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Кнопка свернуть (минус)
+
+local minimizeButton = Instance.new("TextButton", frame)
+minimizeButton.Size = UDim2.new(0, 30, 0, 30)
+minimizeButton.Position = UDim2.new(1, -60, 0, 5)
+minimizeButton.BackgroundColor3 = Color3.fromRGB(255, 200, 100)
+minimizeButton.TextColor3 = Color3.new(0, 0, 0)
+minimizeButton.Font = Enum.Font.ArialBold
+minimizeButton.TextSize = 24
+minimizeButton.Text = "−"
+minimizeButton.AutoButtonColor = true
+
+-- Кнопка раскрыть (плюс), изначально скрыта
+
+local maximizeButton = Instance.new("TextButton", screenGui)
+maximizeButton.Size = UDim2.new(0, 40, 0, 40)
+maximizeButton.Position = UDim2.new(0, 10, 0, 10) -- слева сверху экрана
+maximizeButton.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
+maximizeButton.TextColor3 = Color3.new(0, 0, 0)
+maximizeButton.Font = Enum.Font.ArialBold
+maximizeButton.TextSize = 32
+maximizeButton.Text = "＋"
+maximizeButton.Visible = false
+
+minimizeButton.MouseButton1Click:Connect(function()
+    frame.Visible = false
+    maximizeButton.Visible = true
+end)
+
+maximizeButton.MouseButton1Click:Connect(function()
+    frame.Visible = true
+    maximizeButton.Visible = false
+end)
+
+-- Таблица для хранения кнопок телепорта (чтобы их скрывать/показывать)
+
+local teleportButtons = {}
+
+local function createTeleportButton(text, cframe, yPos)
+    local button = Instance.new("TextButton", frame)
+    button.Size = UDim2.new(0.95, 0, 0, 30)
+    button.Position = UDim2.new(0.025, 0, 0, yPos)
+    button.BackgroundColor3 = Color3.fromRGB(255, 255, 100)
+    button.TextColor3 = Color3.new(0, 0, 0)
+    button.Font = Enum.Font.ArialBold
+    button.TextSize = 18
+    button.Text = text
+    button.TextWrapped = true
+
+    button.MouseButton1Click:Connect(function()
+        local character = player.Character
+        if character and character:FindFirstChild("HumanoidRootPart") then
+            character.HumanoidRootPart.CFrame = cframe
+        end
+    end)
+    
+    table.insert(teleportButtons, button)
+    return button
+end
+
+-- Добавляем все кнопки телепорта
+
+local lastYPos = 50
+createTeleportButton("Shop Alley", CFrame.new(-45.38, 7.45, -68.47), lastYPos + 0)
+createTeleportButton("Stick Spot Alley Shop", CFrame.new(-43.63, 7.45, -42.05), lastYPos + 40)
+createTeleportButton("Restaurant Kitchen", CFrame.new(5.76, 7.46, 21.73), lastYPos + 80)
+createTeleportButton("Eating Guys Spot", CFrame.new(-26.18, 11.25, 52.64), lastYPos + 120)
+createTeleportButton("Seller Alley", CFrame.new(68.58, 7.26, -87.89), lastYPos + 160)
+createTeleportButton("Shop Across Road", CFrame.new(-133.15, 6.64, -152.58), lastYPos + 200)
+createTeleportButton("Farm Spot 1", CFrame.new(155.05, 7.76, -256.98), lastYPos + 240)
+createTeleportButton("Farm Spot 2", CFrame.new(479.41, 31.01, -146.07), lastYPos + 280)
+createTeleportButton("Farm Washing Machine", CFrame.new(448.97, 31.93, -97.66), lastYPos + 320)
+createTeleportButton("Buy Bats Spot          ", CFrame.new(-57.18, 6.44, -154.92), lastYPos + 360)
+
+-- Система авто добычи: будет циклически имитировать действие "добычи" (примерно)
+
+local autoFarmEnabled = false
+
+local autoFarmButton = Instance.new("TextButton", frame)
+autoFarmButton.Size = UDim2.new(0.95, 0, 0, 40)
+autoFarmButton.Position = UDim2.new(0.025, 0, 0, lastYPos + 400)
+autoFarmButton.BackgroundColor3 = Color3.fromRGB(150, 220, 255)
+autoFarmButton.TextColor3 = Color3.new(0, 0, 0)
+autoFarmButton.Font = Enum.Font.ArialBold
+autoFarmButton.TextSize = 20
+autoFarmButton.Text = "Auto Farm: OFF"
+
+autoFarmButton.MouseButton1Click:Connect(function()
+    autoFarmEnabled = not autoFarmEnabled
+    if autoFarmEnabled then
+        autoFarmButton.Text = "Auto Farm: ON"
+    else
+        autoFarmButton.Text = "Auto Farm: OFF"
+    end
+end)
+
+-- Пример простейшего автофарма (циклически)
+
+spawn(function()
+    while true do
+        wait(1)
+        if autoFarmEnabled then
+            local character = player.Character
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                -- Пример: имитируем добычу — замените логику под вашу игру
+                -- например, нажимаем на определенную точку, кликаем, совершаем действия
+                -- в этом примере просто телепортируемся туда и назад (пример!)
+                
+                -- можно реализовать вашу логику добычи здесь
+                -- или взаимодействие с нужными объектами
+                
+                -- Пример: если в игре есть инструмент/предмет для добычи, с ним работать
+                
+                -- Условно: телепортируемся на ферму
+                character.HumanoidRootPart.CFrame = CFrame.new(155, 7.7, -256) 
+                wait(0.5)
+                -- возвращаемся обратно (условно)
+                character.HumanoidRootPart.CFrame = CFrame.new(0, 10, 0)
+            end
+        end
+    end
+end)
