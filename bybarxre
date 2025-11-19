@@ -2,70 +2,13 @@
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 
-local screenGui = Instance.new("ScreenGui", playerGui)
-screenGui.Name = "TeleportMenu"
+-- Ключ и Дискорд, меню дублирую из предыдущего скрипта --
 
-local frame = Instance.new("Frame", screenGui)
-frame.Size = UDim2.new(0, 320, 0, 440) -- чуть шире, чтобы вместить длинную кнопку
-frame.Position = UDim2.new(0.5, -160, 0.3, -220)
-frame.BackgroundColor3 = Color3.fromRGB(255, 251, 209)
-frame.BorderColor3 = Color3.new(0, 0, 0)
-frame.Active = true
-frame.Draggable = true
-
--- Заголовок
-
-local title = Instance.new("TextLabel", frame)
-title.Size = UDim2.new(1, -60, 0, 40) -- место под кнопки
-title.Position = UDim2.new(0, 0, 0, 0)
-title.BackgroundTransparency = 1
-title.Text = "Teleport Menu"
-title.Font = Enum.Font.ArialBold
-title.TextSize = 24
-title.TextColor3 = Color3.new(0, 0, 0)
-title.TextXAlignment = Enum.TextXAlignment.Left
-
--- Кнопка свернуть (минус)
-
-local minimizeButton = Instance.new("TextButton", frame)
-minimizeButton.Size = UDim2.new(0, 30, 0, 30)
-minimizeButton.Position = UDim2.new(1, -60, 0, 5)
-minimizeButton.BackgroundColor3 = Color3.fromRGB(255, 200, 100)
-minimizeButton.TextColor3 = Color3.new(0, 0, 0)
-minimizeButton.Font = Enum.Font.ArialBold
-minimizeButton.TextSize = 24
-minimizeButton.Text = "−"
-minimizeButton.AutoButtonColor = true
-
--- Кнопка раскрыть (плюс), изначально скрыта
-
-local maximizeButton = Instance.new("TextButton", screenGui)
-maximizeButton.Size = UDim2.new(0, 40, 0, 40)
-maximizeButton.Position = UDim2.new(0, 10, 0, 10) -- слева сверху экрана
-maximizeButton.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
-maximizeButton.TextColor3 = Color3.new(0, 0, 0)
-maximizeButton.Font = Enum.Font.ArialBold
-maximizeButton.TextSize = 32
-maximizeButton.Text = "＋"
-maximizeButton.Visible = false
-
-minimizeButton.MouseButton1Click:Connect(function()
-    frame.Visible = false
-    maximizeButton.Visible = true
-end)
-
-maximizeButton.MouseButton1Click:Connect(function()
-    frame.Visible = true
-    maximizeButton.Visible = false
-end)
-
--- Таблица для хранения кнопок телепорта (чтобы их скрывать/показывать)
-
-local teleportButtons = {}
-
-local function createTeleportButton(text, cframe, yPos)
-    local button = Instance.new("TextButton", frame)
+local function createTeleportButton(text, cframe, yPos, parentFrame)
+    local button = Instance.new("TextButton", parentFrame)
     button.Size = UDim2.new(0.95, 0, 0, 30)
     button.Position = UDim2.new(0.025, 0, 0, yPos)
     button.BackgroundColor3 = Color3.fromRGB(255, 255, 100)
@@ -81,70 +24,281 @@ local function createTeleportButton(text, cframe, yPos)
             character.HumanoidRootPart.CFrame = cframe
         end
     end)
-    
-    table.insert(teleportButtons, button)
     return button
 end
 
--- Добавляем все кнопки телепорта
+-- Функция для простого "нажатия" с имитацией нажатия клавиши E и взаимодействия с UI --
 
-local lastYPos = 50
-createTeleportButton("Shop Alley", CFrame.new(-45.38, 7.45, -68.47), lastYPos + 0)
-createTeleportButton("Stick Spot Alley Shop", CFrame.new(-43.63, 7.45, -42.05), lastYPos + 40)
-createTeleportButton("Restaurant Kitchen", CFrame.new(5.76, 7.46, 21.73), lastYPos + 80)
-createTeleportButton("Eating Guys Spot", CFrame.new(-26.18, 11.25, 52.64), lastYPos + 120)
-createTeleportButton("Seller Alley", CFrame.new(68.58, 7.26, -87.89), lastYPos + 160)
-createTeleportButton("Shop Across Road", CFrame.new(-133.15, 6.64, -152.58), lastYPos + 200)
-createTeleportButton("Farm Spot 1", CFrame.new(155.05, 7.76, -256.98), lastYPos + 240)
-createTeleportButton("Farm Spot 2", CFrame.new(479.41, 31.01, -146.07), lastYPos + 280)
-createTeleportButton("Farm Washing Machine", CFrame.new(448.97, 31.93, -97.66), lastYPos + 320)
-createTeleportButton("Buy Bats Spot          ", CFrame.new(-57.18, 6.44, -154.92), lastYPos + 360)
+local function pressKey(key)
+    -- Для локального скрипта обычно нельзя программно вызвать нажатие
+    -- Тут можно вызвать события или вызывать RemoteEvents, если они есть в игре
 
--- Система авто добычи: будет циклически имитировать действие "добычи" (примерно)
+    -- Писать здесь надо конкретно под игру, например:
+    -- local event = game.ReplicatedStorage:WaitForChild("UseEvent")
+    -- event:FireServer()
 
-local autoFarmEnabled = false
+    -- Пока заглушка, в реале надо прописать под игру
+end
 
-local autoFarmButton = Instance.new("TextButton", frame)
-autoFarmButton.Size = UDim2.new(0.95, 0, 0, 40)
-autoFarmButton.Position = UDim2.new(0.025, 0, 0, lastYPos + 400)
-autoFarmButton.BackgroundColor3 = Color3.fromRGB(150, 220, 255)
-autoFarmButton.TextColor3 = Color3.new(0, 0, 0)
-autoFarmButton.Font = Enum.Font.ArialBold
-autoFarmButton.TextSize = 20
-autoFarmButton.Text = "Auto Farm: OFF"
+local farmLocations = {
+    CFrame.new(50.1056862, 10.9313974, -85.8858185, 0.998175025, 5.90900768e-08, -0.0603873581, -5.67835698e-08, 1, 3.99112494e-08, 0.0603873581, -3.64094035e-08, 0.998175025), -- мусорка 1
+    CFrame.new(54.8231201, 10.0087824, -49.2397079, -0.999316692, -2.25477859e-08, 0.0369616114, -2.48116372e-08, 1, -6.07900148e-08, -0.0369616114, -6.16655527e-08, -0.999316692), -- мусорка 2
+    CFrame.new(19.0571632, 11.1313686, -69.9429932, 0.728813231, -9.79094068e-08, 0.684712529, 6.34623021e-08, 1, 7.54437011e-08, -0.684712529, -1.15309344e-08, 0.728813231), -- мусорка 3
+}
 
-autoFarmButton.MouseButton1Click:Connect(function()
-    autoFarmEnabled = not autoFarmEnabled
-    if autoFarmEnabled then
-        autoFarmButton.Text = "Auto Farm: ON"
-    else
-        autoFarmButton.Text = "Auto Farm: OFF"
+local sellerCFrame = CFrame.new(69.1641083, 7.28125477, -88.1583252, 0.67881304, -2.04393906e-08, -0.734311163, 2.64119713e-08, 1, -3.41898576e-09, 0.734311163, -1.70737522e-08, 0.67881304) -- продавец
+
+local isFarming = false
+local farmIndex = 1
+
+local function teleportTo(cframe)
+    local character = player.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        character.HumanoidRootPart.CFrame = cframe
     end
-end)
+end
 
--- Пример простейшего автофарма (циклически)
+local function simulateSell()
+    -- Функция должна быть адаптирована под конкретную игру
+    -- Здесь пример для нажатия E и кликов по UI, данные кнопки должны быть реальными из игры
 
-spawn(function()
-    while true do
-        wait(1)
-        if autoFarmEnabled then
-            local character = player.Character
-            if character and character:FindFirstChild("HumanoidRootPart") then
-                -- Пример: имитируем добычу — замените логику под вашу игру
-                -- например, нажимаем на определенную точку, кликаем, совершаем действия
-                -- в этом примере просто телепортируемся туда и назад (пример!)
-                
-                -- можно реализовать вашу логику добычи здесь
-                -- или взаимодействие с нужными объектами
-                
-                -- Пример: если в игре есть инструмент/предмет для добычи, с ним работать
-                
-                -- Условно: телепортируемся на ферму
-                character.HumanoidRootPart.CFrame = CFrame.new(155, 7.7, -256) 
-                wait(0.5)
-                -- возвращаемся обратно (условно)
-                character.HumanoidRootPart.CFrame = CFrame.new(0, 10, 0)
-            end
+    -- Нажать E (если в игре предусмотрено удаленно)
+    -- pressKey(Enum.KeyCode.E)
+
+    -- Иногда взаимодействие через RemoteEvent, если известны, активируйте их
+
+    -- Симулировать клики на SELL и закрытие окна
+    -- Пример (зависит от UI игры):
+
+    local sellButton = nil
+    local closeButton = nil
+
+    -- Поиск кнопок (ойдет через PlayerGui разные интерфейсы, надо заменить под твою игру):
+    for _, gui in pairs(playerGui:GetChildren()) do
+        if gui:IsA("ScreenGui") then
+            sellButton = gui:FindFirstChild("SellButton") or sellButton
+            closeButton = gui:FindFirstChild("CloseButton") or closeButton
         end
     end
-end)
+
+    if sellButton and closeButton then
+        sellButton:Activate()
+        wait(0.5)
+        closeButton:Activate()
+    end
+end
+
+local function farmLoop()
+    if isFarming then return end
+    isFarming = true
+    while isFarming do
+        -- Телепорт на мусорку
+        local cframe = farmLocations[farmIndex]
+        teleportTo(cframe)
+        -- Имитируем фарм 2 минуты на месте
+        local startTime = os.clock()
+        while os.clock() - startTime < 120 do
+            -- Можно добавить анимацию, действия и т.п.
+            wait(1)
+        end
+
+        -- Телепорт к продавцу
+        teleportTo(sellerCFrame)
+        wait(1)
+
+        -- Имитируем SELL
+        simulateSell()
+        wait(1)
+
+        -- Следующая мусорка по кругу
+        farmIndex = farmIndex + 1
+        if farmIndex > #farmLocations then
+            farmIndex = 1
+        end
+    end
+end
+
+local function stopFarm()
+    isFarming = false
+end
+
+-- Добавляем кнопку запуска и остановки фарма в меню после создания меню main
+
+local function showTeleportMenu()
+    local screenGui = Instance.new("ScreenGui", playerGui)
+    screenGui.Name = "TeleportMenu"
+
+    local frame = Instance.new("Frame", screenGui)
+    frame.Size = UDim2.new(0, 320, 0, 520)
+    frame.Position = UDim2.new(0.5, -160, 0.3, -260)
+    frame.BackgroundColor3 = Color3.fromRGB(255, 251, 209)
+    frame.BorderColor3 = Color3.new(0, 0, 0)
+    frame.Active = true
+    frame.Draggable = true
+
+    local title = Instance.new("TextLabel", frame)
+    title.Size = UDim2.new(1, -60, 0, 40)
+    title.Position = UDim2.new(0, 0, 0, 0)
+    title.BackgroundTransparency = 1
+    title.Text = "dancik project - Teleport Menu"
+    title.Font = Enum.Font.ArialBold
+    title.TextSize = 24
+    title.TextColor3 = Color3.new(0, 0, 0)
+    title.TextXAlignment = Enum.TextXAlignment.Left
+
+    -- Кнопки сворачивания/разворачивания (по предыдущему примеру)
+    local minimizeButton = Instance.new("TextButton", frame)
+    minimizeButton.Size = UDim2.new(0, 30, 0, 30)
+    minimizeButton.Position = UDim2.new(1, -60, 0, 5)
+    minimizeButton.BackgroundColor3 = Color3.fromRGB(255, 200, 100)
+    minimizeButton.TextColor3 = Color3.new(0, 0, 0)
+    minimizeButton.Font = Enum.Font.ArialBold
+    minimizeButton.TextSize = 24
+    minimizeButton.Text = "−"
+    minimizeButton.AutoButtonColor = true
+
+    local maximizeButton = Instance.new("TextButton", screenGui)
+    maximizeButton.Size = UDim2.new(0, 40, 0, 40)
+    maximizeButton.Position = UDim2.new(0, 10, 0, 10)
+    maximizeButton.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
+    maximizeButton.TextColor3 = Color3.new(0, 0, 0)
+    maximizeButton.Font = Enum.Font.ArialBold
+    maximizeButton.TextSize = 32
+    maximizeButton.Text = "＋"
+    maximizeButton.Visible = false
+
+    minimizeButton.MouseButton1Click:Connect(function()
+        frame.Visible = false
+        maximizeButton.Visible = true
+    end)
+
+    maximizeButton.MouseButton1Click:Connect(function()
+        frame.Visible = true
+        maximizeButton.Visible = false
+    end)
+
+    -- Создаем кнопки телепорта
+    local ypos = 50
+    local step = 40
+    createTeleportButton("Shop Alley", CFrame.new(-45.3810196, 7.45075321, -68.4783249, 0.169107527, -1.21347995e-07, 0.98559761, 3.22083871e-09, 1, 1.22568608e-07, -0.98559761, -1.75528232e-08, 0.169107527), ypos, frame)
+    ypos = ypos + step
+    createTeleportButton("Stick Spot Alley Shop", CFrame.new(-43.6370049, 7.45075321, -42.0566978, -0.999917388, -5.82436748e-08, 0.0128521416, -5.79889949e-08, 1, 2.01887715e-08, -0.0128521416, 1.94418206e-08, -0.999917388), ypos, frame)
+    ypos = ypos + step
+    createTeleportButton("Restaurant Kitchen", CFrame.new(5.76696157, 7.46311855, 21.7321358, 0.999991477, -9.31417574e-08, -0.00412342418, 9.34667099e-08, 1, 7.8613013e-08, 0.00412342418, -7.89977506e-08, 0.999991477), ypos, frame)
+    ypos = ypos + step
+    createTeleportButton("Eating Guys Spot", CFrame.new(-26.1868839, 11.2596951, 52.6445465, -0.999767244, 5.76031389e-10, 0.0215757973, 6.00467676e-10, 1, 1.1260991e-09, -0.0215757973, 1.13879262e-09, -0.999767244), ypos, frame)
+    ypos = ypos + step
+    createTeleportButton("Seller Alley", CFrame.new(68.5873566, 7.26579475, -87.8998337, 0.488832176, -9.86823867e-09, -0.872377872, -6.07947026e-10, 1, -1.16525456e-08, 0.872377872, 6.22649887e-09, 0.488832176), ypos, frame)
+    ypos = ypos + step
+    createTeleportButton("Shop Across Road", CFrame.new(-133.157349, 6.64009714, -152.585815, 0.0128534939, -1.02974393e-08, 0.999917388, -3.85648065e-08, 1, 1.07940235e-08, -0.999917388, -3.87003602e-08, 0.0128534939), ypos, frame)
+    ypos = ypos + step
+    createTeleportButton("Farm Spot 1", farmLocations[1], ypos, frame)
+    ypos = ypos + step
+    createTeleportButton("Farm Spot 2", farmLocations[2], ypos, frame)
+    ypos = ypos + step
+    createTeleportButton("Farm Spot 3", farmLocations[3], ypos, frame)
+    ypos = ypos + step
+    createTeleportButton("Farm Washing Machine", CFrame.new(448.979309, 31.9358749, -97.6657715, 0.544165134, -7.488633e-08, 0.838978112, 9.84014221e-08, 1, 2.54353552e-08, -0.838978112, 6.87156074e-08, 0.544165134), ypos, frame)
+    ypos = ypos + step
+    createTeleportButton("Buy Bats Spot", CFrame.new(-57.1817245, 6.44090605, -154.925644, 0.999540329, -8.68372112e-08, -0.0303166937, 8.65095728e-08, 1, -1.21188775e-08, 0.0303166937, 9.49062251e-09, 0.999540329), ypos, frame)
+    ypos = ypos + step
+
+    -- Кнопка запуска фарма
+    local farmButton = Instance.new("TextButton", frame)
+    farmButton.Size = UDim2.new(0.95, 0, 0, 35)
+    farmButton.Position = UDim2.new(0.025, 0, 0, ypos)
+    farmButton.BackgroundColor3 = Color3.fromRGB(150, 255, 150)
+    farmButton.TextColor3 = Color3.new(0, 0, 0)
+    farmButton.Font = Enum.Font.ArialBold
+    farmButton.TextSize = 22
+    farmButton.Text = "Auto farm"
+
+    farmButton.MouseButton1Click:Connect(function()
+        if isFarming then
+            farmButton.Text = "Auto farm"
+            stopFarm()
+        else
+            farmButton.Text = "stop farm"
+            farmLoop()
+        end
+    end)
+end
+
+-- Ключ и верификация (как в предыдущем ответе), запускаем показ меню
+
+local function showKeyVerification()
+    local screenGui = Instance.new("ScreenGui", playerGui)
+    screenGui.Name = "KeyVerification"
+
+    local frame = Instance.new("Frame", screenGui)
+    frame.Size = UDim2.new(0, 300, 0, 150)
+    frame.Position = UDim2.new(0.5, -150, 0.5, -75)
+    frame.BackgroundColor3 = Color3.fromRGB(255, 251, 209)
+    frame.BorderColor3 = Color3.new(0, 0, 0)
+    frame.Active = true
+    frame.Draggable = true
+
+    local title = Instance.new("TextLabel", frame)
+    title.Size = UDim2.new(1, 0, 0, 30)
+    title.Position = UDim2.new(0, 0, 0, 0)
+    title.BackgroundTransparency = 1
+    title.Text = "Dancik Project - Вход"
+    title.Font = Enum.Font.ArialBold
+    title.TextSize = 24
+    title.TextColor3 = Color3.new(0, 0, 0)
+
+    local inputBox = Instance.new("TextBox", frame)
+    inputBox.Size = UDim2.new(0.9, 0, 0, 40)
+    inputBox.Position = UDim2.new(0.05, 0, 0, 50)
+    inputBox.PlaceholderText = "Введите ключ доступа"
+    inputBox.Font = Enum.Font.ArialBold
+    inputBox.TextSize = 20
+    inputBox.TextColor3 = Color3.new(0, 0, 0)
+    inputBox.ClearTextOnFocus = false
+
+    local infoLabel = Instance.new("TextLabel", frame)
+    infoLabel.Size = UDim2.new(0.9, 0, 0, 35)
+    infoLabel.Position = UDim2.new(0.05, 0, 0, 95)
+    infoLabel.BackgroundTransparency = 1
+    infoLabel.Text = 'Ключ можно получить в Discord: dsc.gg/SFc8fD2EeV\nНажмите Ctrl+C, чтобы скопировать'
+    infoLabel.TextWrapped = true
+    infoLabel.Font = Enum.Font.ArialBold
+    infoLabel.TextSize = 14
+    infoLabel.TextColor3 = Color3.new(0, 0, 0)
+
+    local copyButton = Instance.new("TextButton", frame)
+    copyButton.Size = UDim2.new(0.9, 0, 0, 30)
+    copyButton.Position = UDim2.new(0.05, 0, 0, 130)
+    copyButton.BackgroundColor3 = Color3.fromRGB(100, 200, 255)
+    copyButton.TextColor3 = Color3.new(0, 0, 0)
+    copyButton.Font = Enum.Font.ArialBold
+    copyButton.TextSize = 18
+    copyButton.Text = "Скопировать ссылку Discord"
+
+    copyButton.MouseButton1Click:Connect(function()
+        if setclipboard then
+            setclipboard("https://discord.gg/SFc8fD2EeV")
+            copyButton.Text = "Скопировано!"
+            wait(2)
+            copyButton.Text = "Скопировать ссылку Discord"
+        end
+    end)
+
+    local function onEnterPressed()
+        if inputBox.Text == "dancik23" then
+            screenGui:Destroy()
+            showTeleportMenu()
+        else
+            inputBox.Text = ""
+            inputBox.PlaceholderText = "Неверный ключ, попробуйте снова"
+        end
+    end
+
+    inputBox.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            onEnterPressed()
+        end
+    end)
+end
+
+showKeyVerification()
