@@ -260,7 +260,7 @@ local function showKeyVerification()
     infoLabel.Size = UDim2.new(0.9, 0, 0, 35)
     infoLabel.Position = UDim2.new(0.05, 0, 0, 95)
     infoLabel.BackgroundTransparency = 1
-    infoLabel.Text = 'Ключ можно получить в Discord: dsc.gg/SFc8fD2EeV\nНажмите Ctrl+C, чтобы скопировать'
+    infoLabel.Text = 'Ключ можно получить в Discord: dsc.gg/EXm9eJYYNK\nНажмите Ctrl+C, чтобы скопировать'
     infoLabel.TextWrapped = true
     infoLabel.Font = Enum.Font.ArialBold
     infoLabel.TextSize = 14
@@ -277,7 +277,7 @@ local function showKeyVerification()
 
     copyButton.MouseButton1Click:Connect(function()
         if setclipboard then
-            setclipboard("https://discord.gg/SFc8fD2EeV")
+            setclipboard("https://discord.gg/EXm9eJYYNK")
             copyButton.Text = "Скопировано!"
             wait(2)
             copyButton.Text = "Скопировать ссылку Discord"
